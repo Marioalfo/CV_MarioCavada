@@ -112,7 +112,43 @@
             100% { transform: translateY(0px); }
         }
         .animate-float { animation: float 6s ease-in-out infinite; }
-    </style>
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation: none;
+        mix-blend-mode: normal;
+    }
+    ::view-transition-new(root) {
+        animation: clip-expand 0.5s ease-in;
+    }
+    @keyframes clip-expand {
+        from { clip-path: circle(0% at var(--cx) var(--cy)); }
+        to   { clip-path: circle(150% at var(--cx) var(--cy)); }
+    }
+    body.light-mode {
+        background: linear-gradient(135deg, #ede8df 0%, #e4ddd4 40%, #ebe4d8 70%, #e8e0d4 100%) !important;
+        color: #352c22 !important;
+    }
+    body.light-mode .glass-card {
+        background: rgba(224, 216, 204, 0.65);
+        border: 1px solid rgba(82, 122, 92, 0.15);
+    }
+    body.light-mode .glass-card-elevated {
+        background: rgba(224, 216, 204, 0.85);
+        border: 1px solid rgba(82, 122, 92, 0.2);
+    }
+    body.light-mode nav {
+        background: rgba(224, 216, 204, 0.6) !important;
+    }
+    body.light-mode .text-on-surface,
+    body.light-mode h1, body.light-mode h2,
+    body.light-mode h3, body.light-mode h4 {
+        color: #352c22 !important;
+    }
+    body.light-mode .text-on-surface-variant {
+        color: #6a5a42 !important;
+    }
+
+</style>
 
 </head>
 <body class="bg-background selection:bg-primary/30 selection:text-primary overflow-x-hidden">
@@ -127,7 +163,14 @@
 <a class="text-on-surface-variant hover:text-on-surface transition-colors" href="#experiencia">Experiencia</a>
 <a class="text-on-surface-variant hover:text-on-surface transition-colors" href="#contacto">Contacto</a>
 </div>
-<button class="bg-primary/10 border border-primary/30 text-primary px-6 py-2 rounded-full font-medium hover:bg-primary/20 active:scale-95 transition-all duration-300">
+
+    <button id="theme-toggle" onclick="toggleTheme(event)"
+            class="w-10 h-10 rounded-full glass-card flex items-center justify-center hover:bg-primary/20 transition-all duration-300 active:scale-95 mr-2"
+            title="Cambiar tema">
+        <span id="theme-icon" class="material-symbols-outlined text-primary" style="font-size:20px;">light_mode</span>
+    </button>
+
+    <button class="bg-primary/10 border border-primary/30 text-primary px-6 py-2 rounded-full font-medium hover:bg-primary/20 active:scale-95 transition-all duration-300">
     <a href="static/pdf/CV_Mario_Cavada_Sepulveda.pdf" download="CV_Mario_Cavada_Sepulveda.pdf">
     Descargar CV </a>
 </button>
@@ -392,4 +435,31 @@
             observer.observe(el);
         });
     </script>
+<script>
+    function toggleTheme(e) {
+        const x = e.clientX;
+        const y = e.clientY;
+        document.documentElement.style.setProperty('--cx', `${x}px`);
+        document.documentElement.style.setProperty('--cy', `${y}px`);
+
+        const isLight = document.body.classList.contains('light-mode');
+
+        if (!document.startViewTransition) {
+            document.body.classList.toggle('light-mode');
+            updateIcon(!isLight);
+            return;
+        }
+
+        document.startViewTransition(() => {
+            document.body.classList.toggle('light-mode');
+            updateIcon(!isLight);
+        });
+    }
+
+    function updateIcon(isLight) {
+        const icon = document.getElementById('theme-icon');
+        icon.textContent = isLight ? 'dark_mode' : 'light_mode';
+    }
+</script>
+
 </body></html>
